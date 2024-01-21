@@ -12,7 +12,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import tech.jhipster.service.QueryService;
 
+import javax.imageio.ImageIO;
 import javax.transaction.Transactional;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -68,6 +71,9 @@ public class ElementoService extends QueryService<Elemento> {
                 e.printStackTrace();
                 throw e;
             }
+
+            redimensionarImagen(rutaArchivo, 1000);
+
         }
 
         // Guarda el nuevo nombre de la imagen
@@ -98,10 +104,28 @@ public class ElementoService extends QueryService<Elemento> {
                 e.printStackTrace();
                 throw e;
             }
+            redimensionarImagen(rutaArchivo, 1000);
         }
 
         elemento.setImagenesPaths(imagenPaths);
         elementoRepository.save(elemento);
+    }
+
+    private void redimensionarImagen(Path rutaArchivo, int nuevoAncho) throws IOException {
+
+        //Lee la imagen
+        BufferedImage imagenOriginal = ImageIO.read(rutaArchivo.toFile());
+
+        // Calcula la nueva altura manteniendo la proporción
+        int nuevoAlto = (int) Math.round((double) imagenOriginal.getHeight() / imagenOriginal.getWidth() * nuevoAncho);
+
+        // Crea una nueva imagen redimensionada
+        Image imagenRedimensionada = imagenOriginal.getScaledInstance(nuevoAncho, nuevoAlto, Image.SCALE_SMOOTH);
+        BufferedImage imagenBuffered = new BufferedImage(nuevoAncho, nuevoAlto, BufferedImage.TYPE_INT_RGB);
+        imagenBuffered.getGraphics().drawImage(imagenRedimensionada, 0, 0, null);
+
+        // Guarda la imagen redimensionada
+        ImageIO.write(imagenBuffered, "jpg", rutaArchivo.toFile());
     }
 
     //Metodos basicos
