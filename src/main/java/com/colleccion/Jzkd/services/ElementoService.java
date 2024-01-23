@@ -35,7 +35,7 @@ public class ElementoService extends QueryService<Elemento> {
     ElementoRepository elementoRepository;
 
     @Transactional
-    public void crearElemento(String nombre, String obs, String descrip, Tipo tipo, boolean esta, Set<MultipartFile> imagenes) throws IOException {
+    public void crearElemento(String nombre, String obs, String descrip, Tipo tipo, boolean esta,boolean backup, String cod, Set<MultipartFile> imagenes) throws IOException {
 
         // Crea un muevo elemento
         Elemento elemento = new Elemento();
@@ -44,6 +44,8 @@ public class ElementoService extends QueryService<Elemento> {
         elemento.setDescrip(descrip);
         elemento.setTipo(tipo);
         elemento.setEsta(esta);
+        elemento.setBackup(backup);
+        elemento.setCod(cod);
 
         String caratula = elemento.getCaratula();
 
@@ -181,6 +183,9 @@ public class ElementoService extends QueryService<Elemento> {
             }
             if (elementoCriteria.getEsta() != null) {
                 specification = specification.and(buildSpecification(elementoCriteria.getEsta(), Elemento_.esta));
+            }
+            if (elementoCriteria.getBackup() != null) {
+                specification = specification.and(buildSpecification(elementoCriteria.getBackup(), Elemento_.backup));
             }
         }
         return specification;

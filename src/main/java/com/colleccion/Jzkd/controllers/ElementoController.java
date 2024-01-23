@@ -44,9 +44,11 @@ public class ElementoController {
                                    @RequestParam String descrip,
                                    @RequestParam Tipo tipo,
                                    @RequestParam boolean esta,
+                                   @RequestParam boolean backup,
+                                   @RequestParam String cod,
                                    @RequestPart("imagen") MultipartFile imagen) {
         try {
-            elementoService.crearElemento(nombre, obs, descrip, tipo, esta, new HashSet<>(Arrays.asList(imagen)));
+            elementoService.crearElemento(nombre, obs, descrip, tipo, esta, backup, cod, new HashSet<>(Arrays.asList(imagen)));
             return new ResponseEntity<>(HttpStatus.CREATED);
         } catch (IOException e) {
             e.printStackTrace();
@@ -70,7 +72,7 @@ public class ElementoController {
 
     // Obtener las imagenes para visualizarlas
     @GetMapping("/{imagen}")
-    public ResponseEntity<byte[]> obtenerImagen( @PathVariable("imagen") String imagen) throws IOException {
+    public ResponseEntity<byte[]> obtenerImagen(@PathVariable("imagen") String imagen) throws IOException {
         String rutaCompleta = "imagenes/" + imagen;
 
         // Reemplaza las barras invertidas con barras diagonales en la ruta
@@ -85,6 +87,7 @@ public class ElementoController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
     //Obtener todos los elementos
     @GetMapping("/lista")
     public ResponseEntity<List<ElementoDto>> lista() {
@@ -126,6 +129,8 @@ public class ElementoController {
         elemento.setDescrip(editar.getDescrip());
         elemento.setTipo(editar.getTipo());
         elemento.setEsta(editar.isEsta());
+        elemento.setBackup(editar.isBackup());
+        elemento.setCod(editar.getCod());
 
         elementoService.save(elemento);
         return new ResponseEntity<>(HttpStatus.OK);
@@ -188,6 +193,16 @@ public class ElementoController {
                     filter.setEquals(false);
                 }
                 elementoCriteria.setEsta(filter);
+            }
+            //Backup
+            if (!StringUtils.isBlank(busqueda.getBackup())) {
+                BooleanFilter filter = new BooleanFilter();
+                if (busqueda.getBackup().equals("true")) {
+                    filter.setEquals(true);
+                } else {
+                    filter.setEquals(false);
+                }
+                elementoCriteria.setBackup(filter);
             }
         }
         return elementoCriteria;

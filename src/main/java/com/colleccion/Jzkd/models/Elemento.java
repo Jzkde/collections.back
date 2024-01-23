@@ -22,23 +22,24 @@ public class Elemento {
     @Enumerated(EnumType.STRING)
     private Tipo tipo;
     private boolean esta;
+    private boolean backup;
     private String caratula;
+    private String cod;
     @ElementCollection
     private Set<String> imagenesPaths = new HashSet<>();
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "disco_id")
-    private Disco disco;
 
     public Elemento() {
     }
 
-    public Elemento(String nombre, String obs, Tipo tipo, boolean esta, String caratula, Set<String> imagenes, String descrip) {
+    public Elemento(String nombre, String obs, String descrip, Tipo tipo, boolean esta, boolean backup, String caratula, String cod, Set<String> imagenesPaths) {
         this.nombre = nombre;
         this.obs = obs;
+        this.descrip = descrip;
         this.tipo = tipo;
         this.esta = esta;
+        this.backup = backup;
         this.caratula = caratula;
-        this.imagenesPaths = imagenes;
-        this.descrip = descrip;
+        this.cod = cod;
+        this.imagenesPaths = imagenesPaths;
     }
 }
