@@ -20,6 +20,7 @@ public class ElementoDto {
     private String caratula;
     private String cod;
     private Set<String> imagenesPaths = new HashSet<>();
+    private boolean borrado;
 
     public ElementoDto() {
     }
@@ -35,5 +36,6 @@ public class ElementoDto {
         this.caratula = elemento.getCaratula();
         this.cod = elemento.getCod();
         this.imagenesPaths = elemento.getImagenesPaths();
+        this.borrado = elemento.isBorrado();
     }
 }

@@ -19,16 +19,18 @@ public class ElementoCriteria {
     private BooleanFilter esta;
     private BooleanFilter backup;
     private TipoFilter tipo;
+    private BooleanFilter borrado;
 
     public ElementoCriteria() {
     }
 
-    public ElementoCriteria(LongFilter id, StringFilter nombre, StringFilter obs, TipoFilter tipo, BooleanFilter esta, BooleanFilter backup) {
+    public ElementoCriteria(LongFilter id, StringFilter nombre, StringFilter obs, TipoFilter tipo, BooleanFilter esta, BooleanFilter backup, BooleanFilter borrado) {
         this.id = id;
         this.nombre = nombre;
         this.obs = obs;
         this.tipo = tipo;
         this.esta = esta;
         this.backup = backup;
+        this.borrado = borrado;
     }
 }

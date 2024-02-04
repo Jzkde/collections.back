@@ -187,6 +187,9 @@ public class ElementoService extends QueryService<Elemento> {
             if (elementoCriteria.getBackup() != null) {
                 specification = specification.and(buildSpecification(elementoCriteria.getBackup(), Elemento_.backup));
             }
+            if (elementoCriteria.getBorrado() != null) {
+                specification = specification.and(buildSpecification(elementoCriteria.getBorrado(), Elemento_.borrado));
+            }
         }
         return specification;
     }

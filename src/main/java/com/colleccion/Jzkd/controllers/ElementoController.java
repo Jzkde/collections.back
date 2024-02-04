@@ -143,9 +143,14 @@ public class ElementoController {
         if (!elementoService.existById(id)) {
             return new ResponseEntity(new Mensaje("El elemento no existe"), HttpStatus.NOT_FOUND);
         }
-        elementoService.delete(id);
-        return new ResponseEntity(new Mensaje("Elemento eliminado"), HttpStatus.OK);
-
+        Elemento borrado = elementoService.getElemento(id);
+        if (borrado.isBorrado() == false) {
+            borrado.setBorrado(true);
+        } else {
+            borrado.setBorrado(false);
+        }
+        elementoService.save(borrado);
+        return new ResponseEntity(new Mensaje("Elemento marcado como borrado"), HttpStatus.OK);
     }
 
     //Busqueda dinamica
@@ -184,7 +189,7 @@ public class ElementoController {
                 filter.setEquals(Tipo.valueOf(tipo));
                 elementoCriteria.setTipo(filter);
             }
-            //Esta
+            //Esta?
             if (!StringUtils.isBlank(busqueda.getEsta())) {
                 BooleanFilter filter = new BooleanFilter();
                 if (busqueda.getEsta().equals("true")) {
@@ -194,7 +199,7 @@ public class ElementoController {
                 }
                 elementoCriteria.setEsta(filter);
             }
-            //Backup
+            //Backup?
             if (!StringUtils.isBlank(busqueda.getBackup())) {
                 BooleanFilter filter = new BooleanFilter();
                 if (busqueda.getBackup().equals("true")) {
@@ -203,6 +208,16 @@ public class ElementoController {
                     filter.setEquals(false);
                 }
                 elementoCriteria.setBackup(filter);
+            }
+            //Borrado?
+            if (!StringUtils.isBlank(busqueda.getBorrado())) {
+                BooleanFilter filter = new BooleanFilter();
+                if (busqueda.getBorrado().equals("false")) {
+                    filter.setEquals(false);
+                } else {
+                    filter.setEquals(true);
+                }
+                elementoCriteria.setBorrado(filter);
             }
         }
         return elementoCriteria;

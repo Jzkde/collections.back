@@ -13,11 +13,12 @@ public class BusquedaDto {
     private String descrip;
     private String esta;
     private String backup;
+    private String borrado;
 
     public BusquedaDto() {
     }
 
-    public BusquedaDto(Long id, String nombre, String obs, String tipo, String descrip, String esta, String backup) {
+    public BusquedaDto(Long id, String nombre, String obs, String tipo, String descrip, String esta, String backup, String borrado) {
         this.id = id;
         this.nombre = nombre;
         this.obs = obs;
@@ -25,5 +26,6 @@ public class BusquedaDto {
         this.descrip = descrip;
         this.esta = esta;
         this.backup = backup;
+        this.borrado = borrado;
     }
 }

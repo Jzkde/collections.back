@@ -27,11 +27,12 @@ public class Elemento {
     private String cod;
     @ElementCollection
     private Set<String> imagenesPaths = new HashSet<>();
+    private boolean borrado;
 
     public Elemento() {
     }
 
-    public Elemento(String nombre, String obs, String descrip, Tipo tipo, boolean esta, boolean backup, String caratula, String cod, Set<String> imagenesPaths) {
+    public Elemento(String nombre, String obs, String descrip, Tipo tipo, boolean esta, boolean backup, String caratula, String cod, boolean borrado, Set<String> imagenesPaths) {
         this.nombre = nombre;
         this.obs = obs;
         this.descrip = descrip;
@@ -41,5 +42,6 @@ public class Elemento {
         this.caratula = caratula;
         this.cod = cod;
         this.imagenesPaths = imagenesPaths;
+        this.borrado = borrado;
     }
 }
