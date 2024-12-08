@@ -8,6 +8,7 @@ import com.colleccion.Jzkd.models.Elemento_;
 import com.colleccion.Jzkd.repositories.ElementoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.query.JSqlParserUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import tech.jhipster.service.QueryService;
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
 @Service
 public class ElementoService extends QueryService<Elemento> {
 
+    String directorioDeAlmacenamiento = "imagenes" ;
 
     @Autowired
     ElementoRepository elementoRepository;
@@ -92,7 +94,7 @@ public class ElementoService extends QueryService<Elemento> {
         Elemento elemento = elementoRepository.findById(elementoId).orElse(null);
 
         Set<String> imagenPaths = elemento.getImagenesPaths();
-        String directorioDeAlmacenamiento = "imagenes" ;
+
 
         //Agrega la nueva imagen al elemento existente
         for (MultipartFile imagen : imagenes) {
@@ -112,6 +114,38 @@ public class ElementoService extends QueryService<Elemento> {
         elemento.setImagenesPaths(imagenPaths);
         elementoRepository.save(elemento);
     }
+    @Transactional
+    public String eliminarImagenPath(Long elementoId, String imagenPath) {
+
+        // Recupera la entidad desde la base de datos
+        Elemento elemento = elementoRepository.findById(elementoId)
+                .orElseThrow(() -> new RuntimeException("Elemento no encontrado"));
+
+        // Elimina el path de la imagen de la colección
+        boolean eliminado = elemento.getImagenesPaths().remove(imagenPath);
+        if (!eliminado) {
+            throw new RuntimeException("La imagen no existe en el conjunto de paths");
+        }
+
+        // Guarda la entidad actualizada en la base de datos
+        elementoRepository.save(elemento);
+
+        // Define el path completo del archivo
+        Path archivoPath = Path.of(directorioDeAlmacenamiento, imagenPath);
+        File file = archivoPath.toFile();
+
+        // Intenta eliminar el archivo del sistema
+        if (file.exists()) {
+            if (file.delete()) {
+                return "Archivo eliminado exitosamente";
+            } else {
+                return "No se pudo eliminar el archivo";
+            }
+        } else {
+            return "Archivo no encontrado";
+        }
+    }
+
 
     private void redimensionarImagen(Path rutaArchivo, int nuevoAncho) throws IOException {
 

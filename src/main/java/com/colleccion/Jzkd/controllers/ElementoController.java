@@ -54,7 +54,9 @@ public class ElementoController {
             e.printStackTrace();
             return new ResponseEntity<>("Error al crear el elemento.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+
     }
+
 
     //Agrega nuevas imágenes a un elemento existente
     @PostMapping("/agregar_img/{id}")
@@ -68,6 +70,16 @@ public class ElementoController {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @DeleteMapping("eliminar/{id}")
+    @Transactional
+    public ResponseEntity<String> eliminarImagen(@PathVariable Long id,
+                                                 @RequestParam String imagen) {
+
+        elementoService.eliminarImagenPath(id, imagen);
+
+        return ResponseEntity.ok("Imagen eliminada con éxito");
     }
 
     // Obtener las imagenes para visualizarlas
