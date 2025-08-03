@@ -25,14 +25,15 @@ public class Elemento {
     private boolean backup;
     private String caratula;
     private String cod;
-    @ElementCollection
-    private Set<String> imagenesPaths = new HashSet<>();
     private boolean borrado;
+
+    @OneToMany(mappedBy = "elemento", fetch = FetchType.EAGER)
+    private Set<Imagen> imagenes = new HashSet<>();
 
     public Elemento() {
     }
 
-    public Elemento(String nombre, String obs, String descrip, Tipo tipo, boolean esta, boolean backup, String caratula, String cod, boolean borrado, Set<String> imagenesPaths) {
+    public Elemento(String nombre, String obs, String descrip, Tipo tipo, boolean esta, boolean backup, String cod, boolean borrado) {
         this.nombre = nombre;
         this.obs = obs;
         this.descrip = descrip;
@@ -41,7 +42,13 @@ public class Elemento {
         this.backup = backup;
         this.caratula = caratula;
         this.cod = cod;
-        this.imagenesPaths = imagenesPaths;
         this.borrado = borrado;
     }
+
+    public void addImagen(Imagen imagen) {
+        imagen.setElemento(this);
+        imagenes.add(imagen);
+    }
+
+
 }

@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.colleccion</groupId>
 	<artifactId>Jzkd</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1-JZKD-COLECCION</version>
 	<name>Jzkd</name>
 	<description>Gestion de base de datos de mis colecciones</description>
 	<properties>

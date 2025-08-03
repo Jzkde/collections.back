@@ -2,127 +2,46 @@ package com.colleccion.Jzkd.services;
 
 import com.colleccion.Jzkd.criteria.ElementoCriteria;
 import com.colleccion.Jzkd.dtos.ElementoDto;
-import com.colleccion.Jzkd.enums.Tipo;
 import com.colleccion.Jzkd.models.Elemento;
 import com.colleccion.Jzkd.models.Elemento_;
 import com.colleccion.Jzkd.repositories.ElementoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.repository.query.JSqlParserUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.transaction.annotation.Transactional;
 import tech.jhipster.service.QueryService;
 
 import javax.imageio.ImageIO;
-import javax.transaction.Transactional;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 
 @Service
 public class ElementoService extends QueryService<Elemento> {
 
-    String directorioDeAlmacenamiento = "imagenes" ;
+    private final ElementoRepository elementoRepository;
 
-    @Autowired
-    ElementoRepository elementoRepository;
+    public ElementoService(ElementoRepository elementoRepository) {
+        this.elementoRepository = elementoRepository;
+    }
 
-    @Transactional
-    public void crearElemento(String nombre, String obs, String descrip, Tipo tipo, boolean esta,boolean backup, String cod, Set<MultipartFile> imagenes) throws IOException {
+    String directorioDeAlmacenamiento = "imagenes";
 
-        // Crea un muevo elemento
-        Elemento elemento = new Elemento();
-        elemento.setNombre(nombre);
-        elemento.setObs(obs);
-        elemento.setDescrip(descrip);
-        elemento.setTipo(tipo);
-        elemento.setEsta(esta);
-        elemento.setBackup(backup);
-        elemento.setCod(cod);
-
-        String caratula = elemento.getCaratula();
-
-        // Carga la imagen principal
-        for (MultipartFile imagen : imagenes) {
-            String directorioDeAlmacenamiento = "imagenes" ;
-
-            // Crea directorio si es necesario
-            File directorio = new File(directorioDeAlmacenamiento);
-            if (!directorio.exists()) {
-                directorio.mkdirs();
-            }
-
-            // Renombra la imagen
-            String nombreArchivo = System.currentTimeMillis() + "_" + imagen.getOriginalFilename();
-            Path rutaArchivo = Path.of(directorioDeAlmacenamiento, nombreArchivo);
-
-
-            // Copia la imagen
-            try (InputStream inputStream = imagen.getInputStream()) {
-                Files.copy(inputStream, rutaArchivo, StandardCopyOption.REPLACE_EXISTING);
-                caratula = (nombreArchivo.toString());
-            } catch (IOException e) {
-                // Manejo de excepciones
-                e.printStackTrace();
-                throw e;
-            }
-
-            redimensionarImagen(rutaArchivo, 1000);
-
-        }
-
-        // Guarda el nuevo nombre de la imagen
-        elemento.setCaratula(caratula);
-
-        // Persiste el objeto
+    public void crearElemento(Elemento elemento) {
         elementoRepository.save(elemento);
     }
 
-    @Transactional
-    public void agregarImagen(Long elementoId, Set<MultipartFile> imagenes) throws IOException {
-
-        //Busca el elemento
-        Elemento elemento = elementoRepository.findById(elementoId).orElse(null);
-
-        Set<String> imagenPaths = elemento.getImagenesPaths();
-
-
-        //Agrega la nueva imagen al elemento existente
-        for (MultipartFile imagen : imagenes) {
-            String nombreArchivo = System.currentTimeMillis() + "_" + imagen.getOriginalFilename();
-            Path rutaArchivo = Path.of(directorioDeAlmacenamiento, nombreArchivo);
-
-            try (InputStream inputStream = imagen.getInputStream()) {
-                Files.copy(inputStream, rutaArchivo, StandardCopyOption.REPLACE_EXISTING);
-                imagenPaths.add(nombreArchivo.toString());
-            } catch (IOException e) {
-                e.printStackTrace();
-                throw e;
-            }
-            redimensionarImagen(rutaArchivo, 1000);
-        }
-
-        elemento.setImagenesPaths(imagenPaths);
-        elementoRepository.save(elemento);
-    }
-    @Transactional
-    public String eliminarImagenPath(Long elementoId, String imagenPath) {
+    public void eliminarImagenPath(Long elementoId, String imagenPath) {
 
         // Recupera la entidad desde la base de datos
-        Elemento elemento = elementoRepository.findById(elementoId)
-                .orElseThrow(() -> new RuntimeException("Elemento no encontrado"));
+        Elemento elemento = elementoRepository.findById(elementoId).orElseThrow(() -> new RuntimeException("Elemento no encontrado"));
 
         // Elimina el path de la imagen de la colección
-        boolean eliminado = elemento.getImagenesPaths().remove(imagenPath);
+        boolean eliminado = elemento.getImagenes().remove(imagenPath);
         if (!eliminado) {
             throw new RuntimeException("La imagen no existe en el conjunto de paths");
         }
@@ -137,17 +56,13 @@ public class ElementoService extends QueryService<Elemento> {
         // Intenta eliminar el archivo del sistema
         if (file.exists()) {
             if (file.delete()) {
-                return "Archivo eliminado exitosamente";
             } else {
-                return "No se pudo eliminar el archivo";
             }
         } else {
-            return "Archivo no encontrado";
         }
     }
 
-
-    private void redimensionarImagen(Path rutaArchivo, int nuevoAncho) throws IOException {
+    public void redimensionarImagen(Path rutaArchivo, int nuevoAncho) throws IOException {
 
         //Lee la imagen
         BufferedImage imagenOriginal = ImageIO.read(rutaArchivo.toFile());
@@ -165,7 +80,7 @@ public class ElementoService extends QueryService<Elemento> {
     }
 
     //Metodos basicos
-    public boolean existById(Long id) {
+    public boolean existsById(Long id) {
         return elementoRepository.existsById(id);
     }
 
@@ -173,12 +88,13 @@ public class ElementoService extends QueryService<Elemento> {
         return elementoRepository.findById(id).orElse(null);
     }
 
+    @Transactional
     public void save(Elemento elemento) {
         elementoRepository.save(elemento);
     }
 
     public List<ElementoDto> getElementosDto() {
-        return elementoRepository.findAll().stream().map(elemento -> new ElementoDto(elemento)).collect(Collectors.toList());
+        return elementoRepository.findAll().stream().map(ElementoDto::new).collect(Collectors.toList());
     }
 
     public List<Elemento> getElementos() {
@@ -191,6 +107,10 @@ public class ElementoService extends QueryService<Elemento> {
 
     public void delete(Long id) {
         elementoRepository.deleteById(id);
+    }
+
+    public Elemento findById(Long id) {
+        return elementoRepository.findById(id).orElse(null);
     }
 
 
